@@ -1,6 +1,6 @@
 from playwright.async_api import async_playwright, Page
 from utils.logger import logger
-import config.config as cf
+import config.config as cfg
 import time
 from es import get_link_es
 from api_check_post import get_links
@@ -106,7 +106,7 @@ class SearchPost:
             logger.debug("Done login")
             list_link = await self.get_link_list_by_search_post(page = self.page, config=self.config)
             for link in list_link:
-                    await crawl_post(page = self.page, link_post = link, mode = 4)
+                await crawl_post(page = self.page, link_post = link, mode = 4)
             logger.debug("Sleep in 4 hour")
             asyncio.sleep(4*60*60)
             return await self.run()
@@ -144,25 +144,18 @@ class SearchPost:
             return list_links
     
 class Update:
-    def __init__(self, config) -> None:
-        self.config = config
-        self.account = config["account"]
+    def __init__(self) -> None:
+        self.config = self.read_config_update()
+        self.account = self.config["account"]
         self.tasks = {}
         self.links_crawling = []
         
-    # async def manage_update(self):
-    #     try:
-    #         # Bắt đầu chạy các coroutine
-    #         task1 = asyncio.create_task(self.update_post())
-    #         task2 = asyncio.create_task(self.get_link_list_es( config = self.config))
-    #         # task1 = self.update_post()
-    #         # task2 = self.get_link_list_es(config = self.config)
-    #         # Chờ cho đến khi cả hai coroutine hoàn thành
-    #         await asyncio.gather(task1,task2)
-    #         # return await self.run()
-    #     except Exception as e:
-    #         print(e)
-    
+    def read_config_update(self):
+        with open("src\config\config_update.json", "r", encoding="utf-8") as config_file:
+            config_data = json.load(config_file)
+        return config_data
+        
+  
     async def manage_update(self):
         # links_crawling = []
         while True:
@@ -177,41 +170,23 @@ class Update:
                             await task
                         except asyncio.CancelledError:
                             logger.debug("Cancel exeption")
+                        except Exception as e:
+                            print(e)
                 new_task = asyncio.create_task(self.update_post())
                 self.links_crawling = links_check
                 self.tasks["new task"] = new_task
             await asyncio.sleep(60)
                 
     async def run(self):
+        logger.info("Run update")
         # try:
         schedule_thread = threading.Thread(target=self.schedule)
         schedule_thread.start()
         await asyncio.gather(self.manage_update())
-        # except asyncio.CancelledError:
-        #     schedule_thread.join()
-        # await self.update_post()
-        # while True:
-        
-            
-        # try:
-        #     coroutine1 = self.schedule()
-        #     coroutine2 = self.update_post()
 
-        #     # Bắt đầu chạy các coroutine
-        #     task1 = asyncio.create_task(coroutine2)
-        #     task2 = asyncio.create_task(coroutine1)
-        # except Exception as e:
-        #     print(e)
-        # # Chờ cho đến khi cả hai coroutine hoàn thành
-        # await asyncio.gather(task1, task2)
 
     #config mode id == 5 : update
     def get_link_list_es(self):
-        # while True:
-        #     current_time = datetime.now().strftime("%H:%M")
-        #     if current_time == start_time_run:
-        #         break
-        #     time.sleep(5)
         range_date = self.config["mode"]["range_date"]
         format_str = "%m/%d/%Y %H:%M:%S"
         now = datetime.now()
@@ -261,55 +236,10 @@ class Update:
                 if links:
                     for link in links:
                         await crawl_post(page=self.page, link_post=link, mode=5)
-                        # link_done.append(link)
-                        # if len(link_done) % 50 == 0:
-                        #     result = list(set(links) - set(link_done))
-                        #     break
-                    # with open("src/link_to_update.txt", "w") as file:
-                    #     for item in result:
-                    #         file.write(str(item) + "\n")
             except Exception as e:
                 print(e)
                 
                 
-
-
-
-    # return get_link_list_es(config=config)
-    # return link_to_update
-    
-# async def get_link_list_update(page = Page, config = dict):
-#     link_done = list()
-#     with open("src/link_to_update.txt", 'r') as file:
-#         links = [line.strip() for line in file]
-#     if links:
-#         for link in links:
-#             await crawl_post(page = page, link_post=, mode = 5)
-#             link_done.append(link)
-#             if len(link_done) % 30 == 0:
-#                 result = list(set(links) - set(link_done))
-#                 break
-#         with open("src/link_to_update.txt", "w") as file:
-#             for item in result:
-#                 file.write(str(item) + "\n")
-#     return await crawl_post_update(page = page, config=config)
-
-        
-# async def update(page , config):
-#     coroutine1 = get_link_list_update( config = config)
-#     coroutine2 = crawl_post_update(page = page, config = config)
-
-#     # Bắt đầu chạy các coroutine
-#     task1 = asyncio.create_task(coroutine2)
-#     task2 = asyncio.create_task(coroutine1)
-
-#     # Chờ cho đến khi cả hai coroutine hoàn thành
-#     await asyncio.gather(task1, task2)
-
-# async def update_post(page, config):
-#     await asyncio.gather(update(page, config))
-    
-    
 
 def check_link_crawled(link):
     page_name = link.split('@')[1].split('/')[0]

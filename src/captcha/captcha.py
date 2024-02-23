@@ -19,20 +19,26 @@ class Rotate:
         
     async def getLink(self):
         async with async_playwright() as p:
-            outer_element = self.page.get_by_test_id("whirl-outer-img")
-            outer_img = await outer_element.get_attribute("src")
-            inner_element = self.page.get_by_test_id("whirl-inner-img")
-            inner_img = await inner_element.get_attribute("src")
-            outer = 'src/captcha/outer.jpg'
-            inner = 'src/captcha/inner.jpg'
-            response = requests.get(outer_img)
-            with open(outer, 'wb') as file:
-                file.write(response.content)
-            time.sleep(1)
-            response = requests.get(inner_img)
-            with open(inner, 'wb') as file:
-                file.write(response.content)
-            time.sleep(1)
+            try:
+                outer_element = self.page.get_by_test_id("whirl-outer-img")
+                outer_img = await outer_element.get_attribute("src")
+                inner_element = self.page.get_by_test_id("whirl-inner-img")
+                inner_img = await inner_element.get_attribute("src")
+                outer = 'src/captcha/outer.jpg'
+                inner = 'src/captcha/inner.jpg'
+                response = requests.get(outer_img)
+                with open(outer, 'wb') as file:
+                    file.write(response.content)
+                time.sleep(1)
+                response = requests.get(inner_img)
+                with open(inner, 'wb') as file:
+                    file.write(response.content)
+                time.sleep(1)
+            except:
+                refresh_button = await self.page.query_selector('#secsdk_captcha_refresh--icon')
+                refresh_button.click()
+                time.sleep(2)
+                return await self.getLink()
         
     async def rotateMatches(self):
         async with async_playwright() as p:
@@ -95,19 +101,25 @@ class Puzzle:
         
     async def getLink(self):
         async with async_playwright() as p:
-            puzzle_element = await self.page.query_selector('#captcha-verify-image')
-            puzzle_img = await puzzle_element.get_attribute("src")
-            piece_element = await self.page.query_selector('.captcha_verify_img_slide')
-            piece_img = await piece_element.get_attribute("src")
-            puzzle = 'src\captcha\puzzle.jpg'
-            piece = 'src\captcha\piece.jpg'
-            response = requests.get(puzzle_img)
-            with open(puzzle, 'wb') as file:
-                file.write(response.content)
-            response = requests.get(piece_img)
-            with open(piece, 'wb') as file:
-                file.write(response.content)
-            time.sleep(2)
+            try:
+                puzzle_element = await self.page.query_selector('#captcha-verify-image')
+                puzzle_img = await puzzle_element.get_attribute("src")
+                piece_element = await self.page.query_selector('.captcha_verify_img_slide')
+                piece_img = await piece_element.get_attribute("src")
+                puzzle = 'src\captcha\puzzle.jpg'
+                piece = 'src\captcha\piece.jpg'
+                response = requests.get(puzzle_img)
+                with open(puzzle, 'wb') as file:
+                    file.write(response.content)
+                response = requests.get(piece_img)
+                with open(piece, 'wb') as file:
+                    file.write(response.content)
+                time.sleep(2)
+            except:
+                refresh_button = await self.page.query_selector('#secsdk_captcha_refresh--icon')
+                refresh_button.click()
+                time.sleep(2)
+                return await self.getLink()
         
     async def puzzleMatches(self):
         async with async_playwright() as p:
@@ -169,15 +181,15 @@ async def check_captcha(page, page_size= {"width": 1280, "height": 720} ):
                 puzzle = Puzzle(page, page_size=page_size)  # Await the __init__ method
                 return await puzzle.puzzleSolver()  # Await the puzzleSolver method
             else:
-                try:
-                    outer_element = page.get_by_test_id("whirl-outer-img")
-                    outer_img = await outer_element.get_attribute("src")
-                    # outer_img = await outer_element.get_attribute("src")
-                    print("Solver captcha ROTATE")
-                    rotate = Rotate(page, page_size=page_size)
-                    return await rotate.rotateSolver()
-                except Exception as e:
-                    logger.debug(e)
+                # try:
+                #     outer_element = page.get_by_test_id("whirl-outer-img")
+                #     outer_img = await outer_element.get_attribute("src")
+                #     # outer_img = await outer_element.get_attribute("src")
+                print("Solver captcha ROTATE")
+                rotate = Rotate(page, page_size=page_size)
+                return await rotate.rotateSolver()
+                # except Exception as e:
+                #     logger.debug(e)
         else:
             logger.debug("No captcha")
         

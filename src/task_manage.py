@@ -1,5 +1,5 @@
 import asyncio
-from crawl import SearchPost, SearchUser, Update
+from manage_crawl import SearchPost, SearchUser, Update
 import time
 from utils.logger import logger
 import psutil
@@ -22,9 +22,6 @@ class TaskManager:
             if mode == 4:
                 logger.debug("Mode search posts")
                 crawl = SearchPost(config=config)
-            if mode == 5:
-                logger.debug("Mode update")
-                crawl = Update(config=config)
             await crawl.run()
             await asyncio.sleep(1)
 
@@ -55,6 +52,6 @@ class TaskManager:
     async def start(self):
         await asyncio.gather(self.check_config_file())
 
-# Sử dụng
-task_manager = TaskManager()
-asyncio.run(task_manager.start())
+# # Sử dụng
+# task_manager = TaskManager()
+# asyncio.run(task_manager.start())

@@ -21,7 +21,7 @@ class ProcessManager:
 
     def clear_processes(self):
         self.processes = []
-        
+
 def auto_update():
     crawl_update = Update()
     loop = asyncio.get_event_loop()
@@ -37,7 +37,7 @@ def crawl():
     asyncio.run()
 
 if __name__ == '__main__':
-    multiprocessing.set_start_method('spawn')
+
     manager = ProcessManager()
     manager.add_process(auto_update)
     manager.add_process(crawl)
