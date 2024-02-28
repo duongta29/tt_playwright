@@ -151,7 +151,7 @@ class Update:
         self.links_crawling = []
         
     def read_config_update(self):
-        with open("src\config\config_update.json", "r", encoding="utf-8") as config_file:
+        with open("config\config_update.json", "r", encoding="utf-8") as config_file:
             config_data = json.load(config_file)
         return config_data
         
@@ -159,7 +159,7 @@ class Update:
     async def manage_update(self):
         # links_crawling = []
         while True:
-            with open("src/link_to_update.txt", 'r') as file:
+            with open("link_to_update.txt", 'r') as file:
                 links_check = [line.strip() for line in file]
             if links_check != self.links_crawling:
                 if len(self.tasks) != 0:
@@ -201,7 +201,7 @@ class Update:
             logger.debug("Get link es")
             link = get_link_es(gte=gte_str, lte=lte_str)
             link_to_update.extend(link)
-        with open("src/link_to_update.txt", "w") as file:
+        with open("link_to_update.txt", "w") as file:
             for item in link_to_update:
                 file.write(str(item) + "\n")
                 
