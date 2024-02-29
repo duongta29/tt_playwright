@@ -4,7 +4,7 @@ import psutil
 from utils.logger import logger
 
 def update_file_crawled(page_name, video_id):
-    folder_path = "src\data crawled"
+    folder_path = "data crawled"
     file_path = os.path.join(folder_path, f"{page_name}.txt")
     # Kiểm tra xem tệp tin đã tồn tại hay chưa
     if not os.path.exists(file_path):

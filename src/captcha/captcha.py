@@ -24,8 +24,8 @@ class Rotate:
                 outer_img = await outer_element.get_attribute("src")
                 inner_element = self.page.get_by_test_id("whirl-inner-img")
                 inner_img = await inner_element.get_attribute("src")
-                outer = 'src/captcha/outer.jpg'
-                inner = 'src/captcha/inner.jpg'
+                outer = 'captcha/outer.jpg'
+                inner = 'captcha/inner.jpg'
                 response = requests.get(outer_img)
                 with open(outer, 'wb') as file:
                     file.write(response.content)
@@ -43,7 +43,7 @@ class Rotate:
     async def rotateMatches(self):
         async with async_playwright() as p:
             await self.getLink()
-            angle = circle.single_discern("src/captcha/inner.jpg","src/captcha/outer.jpg","src/captcha/result.png")
+            angle = circle.single_discern("captcha/inner.jpg","captcha/outer.jpg","captcha/result.png")
             px = (271 * angle) / 360
             return px
     
@@ -106,8 +106,8 @@ class Puzzle:
                 puzzle_img = await puzzle_element.get_attribute("src")
                 piece_element = await self.page.query_selector('.captcha_verify_img_slide')
                 piece_img = await piece_element.get_attribute("src")
-                puzzle = 'src\captcha\puzzle.jpg'
-                piece = 'src\captcha\piece.jpg'
+                puzzle = 'captcha\puzzle.jpg'
+                piece = 'captcha\piece.jpg'
                 response = requests.get(puzzle_img)
                 with open(puzzle, 'wb') as file:
                     file.write(response.content)
@@ -116,18 +116,18 @@ class Puzzle:
                     file.write(response.content)
                 time.sleep(2)
             except:
-                refresh_button = await self.page.query_selector('#secsdk_captcha_refresh--icon')
+                refresh_button = await self.page.query_selector('#secsdk_captcha_refresh--text')
                 refresh_button.click()
-                time.sleep(2)
+                time.sleep(4)
                 return await self.getLink()
         
     async def puzzleMatches(self):
         async with async_playwright() as p:
             await self.getLink()
-            img_rgb = cv2.imread('src\captcha\puzzle.jpg')
+            img_rgb = cv2.imread('captcha\puzzle.jpg')
             img_rgb = cv2.resize(img_rgb, (new_width, new_height))
             img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-            template = cv2.imread('src\captcha\piece.jpg',0)
+            template = cv2.imread('captcha\piece.jpg',0)
             template = cv2.resize(template, (68, 68))
             res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)

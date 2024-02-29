@@ -37,7 +37,7 @@ class SearchUser:
             logger.debug("Done login")
             list_link = await self.get_link_list_by_search_user(page = self.page, config=self.config)
             for link in list_link:
-                    await crawl_post(page = self.page, link_post = link, mode = 3)
+                await crawl_post(page = self.page, link_post = link, mode = 3)
             logger.debug("Sleep in 4 hour")
             await asyncio.sleep(4*60*60)
             return await self.run()
@@ -217,7 +217,7 @@ class Update:
             # arguments = self.config["listArgumentChromium"]
             # browser = await p.chromium.launch(headless=False, args=arguments)
             try:
-                browser = await p.chromium.launch(headless=False)
+                browser = await p.chromium.launch(headless=True)
                 context = await browser.new_context()
                 await context.tracing.start(screenshots = True, snapshots = True, sources = True)
                 self.page = await context.new_page()
@@ -231,7 +231,7 @@ class Update:
                     await get_cookies(page= self.page, account=self.account)
                 logger.debug("Done login")
                 link_done = list()
-                with open("src/link_to_update.txt", 'r') as file:
+                with open("link_to_update.txt", 'r') as file:
                     links = [line.strip() for line in file]
                 if links:
                     for link in links:
