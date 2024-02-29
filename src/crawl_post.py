@@ -159,7 +159,10 @@ async def crawl_post(page , link_post, mode):
             post_extractor: PostTikTokExtractor = PostTikTokExtractor(page = page, link=link_post, source_id=source_id, infor_text = infor_text)
             post = post_extractor.extract()
             posts.append(post)
-            await scroll_comment(page=page)
+            try:
+                await scroll_comment(page=page)
+            except:
+                logger.warning("Stop scroll comment by Time out")
             if post is not None:
                 write_post_to_file(post=post)
                 comments = await crawl_comment(page, list_comments=list_comments, list_replies=list_replies)

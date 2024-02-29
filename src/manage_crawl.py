@@ -217,7 +217,7 @@ class Update:
             # arguments = self.config["listArgumentChromium"]
             # browser = await p.chromium.launch(headless=False, args=arguments)
             try:
-                browser = await p.chromium.launch(headless=True)
+                browser = await p.chromium.launch(headless=False)
                 context = await browser.new_context()
                 await context.tracing.start(screenshots = True, snapshots = True, sources = True)
                 self.page = await context.new_page()
