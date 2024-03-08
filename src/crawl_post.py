@@ -142,6 +142,7 @@ async def push_kafka(posts, comments, mode):
 async def crawl_post(page , link_post, mode):
     async with async_playwright() as p:
         try:
+            listen_response = lambda response: handle_response(response, list_comments, list_replies)
             page_name = link_post.split('@')[1].split('/')[0]
             source_id = link_post.split('/')[-1]
             start = time.time()
@@ -149,7 +150,7 @@ async def crawl_post(page , link_post, mode):
             list_replies =[]
             # page.route("**", lambda route: await route.continue_())
             posts = []
-            page.on("response", lambda response: handle_response(response, list_comments, list_replies))
+            page.on("response", listen_response)
             await page.goto(link_post)
             await page.mouse.wheel(0,500)
             time.sleep(5)
@@ -159,10 +160,11 @@ async def crawl_post(page , link_post, mode):
             post_extractor: PostTikTokExtractor = PostTikTokExtractor(page = page, link=link_post, source_id=source_id, infor_text = infor_text)
             post = post_extractor.extract()
             posts.append(post)
-            try:
-                await scroll_comment(page=page)
-            except:
-                logger.warning("Stop scroll comment by Time out")
+            if mode == 5 :
+                try:
+                    await scroll_comment(page=page)
+                except:
+                    logger.warning("Stop scroll comment by Time out")
             if post is not None:
                 write_post_to_file(post=post)
                 comments = await crawl_comment(page, list_comments=list_comments, list_replies=list_replies)
@@ -181,6 +183,8 @@ async def crawl_post(page , link_post, mode):
                     logger.warning("Cant insert link to api")
                 end = time.time()
                 logger.debug(f"Done crawl {link_post} in {end-start}s")
+            page.remove_listener("response", listen_response)
+            
         except Exception as e:
             logger.error(f"Cant crawl post by {e}")
         

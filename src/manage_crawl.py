@@ -36,8 +36,11 @@ class SearchUser:
                 await get_cookies(page= self.page, account=self.account)
             logger.debug("Done login")
             list_link = await self.get_link_list_by_search_user(page = self.page, config=self.config)
+            await self.page.close()
             for link in list_link:
+                self.page = await context.new_page()
                 await crawl_post(page = self.page, link_post = link, mode = 3)
+                await self.page.close()
             logger.debug("Sleep in 4 hour")
             await asyncio.sleep(4*60*60)
             return await self.run()
@@ -105,8 +108,11 @@ class SearchPost:
                 await get_cookies(page= self.page, account=self.account)
             logger.debug("Done login")
             list_link = await self.get_link_list_by_search_post(page = self.page, config=self.config)
+            await self.page.close()
             for link in list_link:
+                self.page = await context.new_page()
                 await crawl_post(page = self.page, link_post = link, mode = 4)
+                await self.page.close()
             logger.debug("Sleep in 4 hour")
             asyncio.sleep(4*60*60)
             return await self.run()
@@ -184,7 +190,6 @@ class Update:
         schedule_thread.start()
         await asyncio.gather(self.manage_update())
 
-
     #config mode id == 5 : update
     def get_link_list_es(self):
         range_date = self.config["mode"]["range_date"]
@@ -233,14 +238,15 @@ class Update:
                 link_done = list()
                 with open("link_to_update.txt", 'r') as file:
                     links = [line.strip() for line in file]
+                await self.page.close()
                 if links:
                     for link in links:
-                        await crawl_post(page=self.page, link_post=link, mode=5)
+                        self.page = await context.new_page()
+                        await crawl_post(page = self.page, link_post = link, mode = 5)
+                        await self.page.close()
             except Exception as e:
                 print(e)
                 
-                
-
 def check_link_crawled(link):
     page_name = link.split('@')[1].split('/')[0]
     video_id = link.split('/')[-1]
